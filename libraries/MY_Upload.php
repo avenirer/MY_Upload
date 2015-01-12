@@ -2,6 +2,8 @@
 
 class MY_Upload extends CI_Upload
 {
+    public $multi = 'all';
+
     /**
      * Hold multiple errors
      * @var array
@@ -23,9 +25,15 @@ class MY_Upload extends CI_Upload
      */
     private $uploadedFiles = array();
 
+    function __construct($config = array())
+    {
+        parent::__construct($config);
+        $this->set_multi($config['multi']);
+    }
+
     public function do_upload($field = 'userfile') {
 
-       if (!isset($_FILES[$field])) {
+        if (!isset($_FILES[$field])) {
             return false;
         }
         // check if it's a multiple upload. if not then fall back to CI do_upload()
@@ -66,6 +74,26 @@ class MY_Upload extends CI_Upload
                     // keep the errors in the multi_errors array
                     $this->multi_errors[] = $this->display_errors('', '');
 
+                }
+                // now we decide if we continue uploading depending on the "multi" key inside the configuration
+                switch($this->multi)
+                {
+                    case 'all':
+                        if(sizeof($this->multi_errors)>0 && sizeof($this->uploadedFiles>0))
+                        {
+                            foreach($this->uploadedFiles as $dataFile)
+                            {
+                                if(file_exists($dataFile['full_path'])) unlink($dataFile['full_path']);
+                            }
+                            break 2;
+                        }
+                        break;
+                    case 'halt':
+                        if(sizeof($this->multi_errors)>0) break 2;
+                        break;
+                    //case 'ignore':
+                    default :
+                        break;
                 }
             }
             // at the end of the uploads, change the finished variable to true so that the class will know it finished it's main job
@@ -116,9 +144,19 @@ class MY_Upload extends CI_Upload
         $append = $this->tempString;
         $this->tempString = '';
 
-            return (count($this->error_msg) > 0) ? $open . $append . implode($close . $open, $this->error_msg) . $close : '';
+        return (count($this->error_msg) > 0) ? $open . $append . implode($close . $open, $this->error_msg) . $close : '';
 
+    }
+
+    public function set_multi($course)
+    {
+        $options = array('all', 'halt','ignore');
+        if(in_array($course,$options))
+        {
+            $this->multi = $course;
+        }
+        return $this;
     }
 }
 /* End of file MY_Upload.php */
-/* Location: ./application/core/MY_Upload.php */
+/* Location: ./application/libraries/MY_Upload.php */
