@@ -96,6 +96,10 @@ class MY_Upload extends CI_Upload
                         break;
                 }
             }
+            if(sizeof($this->multi_errors)>0 && $this->multi == 'all' )
+            {
+                return FALSE;
+            }
             // at the end of the uploads, change the finished variable to true so that the class will know it finished it's main job
             $this->finished = TRUE;
             return TRUE;
