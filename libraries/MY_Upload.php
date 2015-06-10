@@ -28,7 +28,10 @@ class MY_Upload extends CI_Upload
     function __construct($config = array())
     {
         parent::__construct($config);
-        $this->set_multi($config['multi']);
+        if(array_key_exists('multi',$config))
+        {
+            $this->set_multi($config['multi']);
+        }
     }
 
     public function do_upload($field = 'userfile') {
