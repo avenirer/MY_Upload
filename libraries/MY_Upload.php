@@ -18,12 +18,12 @@ class MY_Upload extends CI_Upload
      * a temporary string that will be appended to the errors when one or more files is/are not uploaded
      * @var string
      */
-    private $tempString;
+    public $tempString;
     /**
      * an array that will contain all the data regarding the successfully uploaded files
      * @var array
      */
-    private $uploadedFiles = array();
+    public $uploadedFiles = array();
 
     function __construct($config = array())
     {
