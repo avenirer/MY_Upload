@@ -4,6 +4,13 @@ class MY_Upload extends CI_Upload
 {
     public $multi = 'all';
 
+
+    /**
+     * keep track of the type of upload
+     * @var bool
+     */
+     public $parellel = FALSE;
+
     /**
      * Hold multiple errors
      * @var array
@@ -53,10 +60,13 @@ class MY_Upload extends CI_Upload
             $_FILES[$field]['error'] = $files['error'][0];
             $_FILES[$field]['size'] = $files['size'][0];
             return $this->do_upload($field);
+
         }
         // else do the magic
         else
         {
+            $this->parellel = TRUE;
+
             $files = $_FILES[$field];
             foreach ($files['name'] as $key => $value)
             {
@@ -67,10 +77,8 @@ class MY_Upload extends CI_Upload
                 $_FILES[$field]['size'] = $files['size'][$key];
                 if ($this->do_upload($field))
                 {
-                    // if the upload was successfull add an element to the uploadedFiles array that contains the data regarding the uploaded file
                     $this->uploadedFiles[] = $this->data();
-                }
-                else
+                } else
                 {
                     // if the upload was unsuccessfull, set a temporary string that will contain the name of the file in question. The string will later be used by the modified display_errors() method
                     $this->tempString = 'File: ' . $_FILES[$field]['name'].' - Error: ';
@@ -114,6 +122,7 @@ class MY_Upload extends CI_Upload
         //first we loook if the files were uploaded. if they were we just return the array with the data regarding the uploaded files
         if($this->finished === TRUE)
         {
+
             return $this->uploadedFiles;
         }
         // if the files were not uploaded, then we update the data
@@ -137,6 +146,13 @@ class MY_Upload extends CI_Upload
         if ( ! empty($index))
         {
             return isset($data[$index]) ? $data[$index] : NULL;
+        }
+
+        if($this->parellel == FALSE) {
+
+            $this->uploadedFiles[0] = $data;
+            return $this->uploadedFiles;
+
         }
 
         return $data;
